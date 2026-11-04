@@ -2,7 +2,7 @@
 
 <img src="assets/now-overpowered.svg" width="100%" alt="Now building Overpowered: an iPhone workout tracker that turns your training into an RPG character. In development.">
 
-<a href="https://github.com/CodySpooner/claude-code-themes"><img src="assets/claude-code-themes.svg" width="100%" alt="claude-code-themes: five animated themes for Claude Code. Sakura, Voltage, Royal, Crunch and Hacker."></a>
+<a href="https://github.com/CodySpooner/claude-code-themes"><img src="assets/claude-code-themes.svg" width="100%" alt="claude-code-themes: six animated themes for Claude Code. Sakura, Voltage, Royal, Crunch, Xody and Hacker."></a>
 
 <img src="assets/stack.svg" width="100%" alt="Stack: Claude Code, Codex, TypeScript, Next.js, Swift, Python">
 
