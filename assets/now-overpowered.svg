@@ -8,6 +8,8 @@ text{font-family:I,Inter,system-ui,sans-serif}
 .cur{animation:blink 1.1s step-end infinite}
 .dot{animation:pulse 2.4s ease-in-out infinite}
 .bar{transform-box:fill-box;transform-origin:bottom;animation:rise .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rot{0%{opacity:0;transform:translateY(8px)}3%,30%{opacity:1;transform:none}33.4%,100%{opacity:0;transform:translateY(-8px)}}
+.t{animation:rot 9s ease-out infinite both}.t2,.t3{opacity:0}.t2{animation-delay:3s}.t3{animation-delay:6s}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
 <rect x=".5" y=".5" width="879" height="239" rx="15.5" fill="#0F0F10" stroke="#1F1F22"/>
 <text x="48" y="62" class="lbl" fill="#EF4444">NOW BUILDING</text>
