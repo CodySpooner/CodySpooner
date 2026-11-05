@@ -1,12 +1,12 @@
 <img src="assets/banner.svg" width="100%" alt="Xody (Cody Spooner), vibe coder. Building cool things on the internet.">
 
-<img src="assets/now-overpowered.svg" width="100%" alt="Now building Overpowered: an iPhone workout tracker that turns your training into an RPG character. In development.">
+<img src="assets/now-overpowered.svg" width="100%" alt="Now building Overpowered: an iPhone workout tracker that plays like an RPG. A spark climbs nine rank tiers from Iron to Legend. Log fast, level up, rank honestly. In development.">
 
-<a href="https://github.com/CodySpooner/ClaudeCodeThemes"><img src="assets/claude-code-themes.svg" width="100%" alt="Claude Code Themes: six animated themes for Claude Code. Sakura, Voltage, Royal, Crunch, Xody and Hacker."></a>
+<p><a href="https://github.com/CodySpooner/ClaudeCodeThemes"><img src="assets/claude-code-themes.svg" width="49.9%" alt="Claude Code Themes: six animated themes for Claude Code, plus a themed HUD for the desktop app. A little terminal cycles through Sakura, Voltage, Royal, Crunch, Xody and Hacker."></a><a href="https://github.com/CodySpooner/Claude-Color-Coded"><img src="assets/claude-color-coded.svg" width="49.9%" alt="Claude Color Coded: color-code the sidebar of the Claude desktop app. A cursor right-clicks a group and picks green, the other groups light up, and the colors stay on their rows as the list scrolls. Windows, C#, MIT, unofficial."></a></p>
 
-<img src="assets/stack.svg" width="100%" alt="Stack: Claude Code, Codex, TypeScript, Next.js, Swift, Python">
+<img src="assets/stack.svg" width="100%" alt="Stack: Claude Code, Codex, TypeScript, Next.js, Swift, C#, Python">
 
-<p align="center"><a href="https://x.com/imxody"><img src="assets/chip-x.svg" height="40" alt="X: @imxody"></a>&nbsp;&nbsp;<img src="assets/chip-discord.svg" height="40" alt="Discord: @xodyz"></p>
+<p><a href="https://x.com/imxody"><img src="assets/chip-x.svg" width="49.9%" alt="X: @imxody"></a><img src="assets/chip-discord.svg" width="49.9%" alt="Discord: @xodyz"></p>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/CodySpooner/CodySpooner/output/snake-dark.svg">
