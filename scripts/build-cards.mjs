@@ -1,6 +1,7 @@
 // Builds the cards in assets/, all but banner.svg, which this only reads for its embedded Inter (OFL).
 // GitHub shows README SVGs as <img>: no scripts, no web fonts, no hover. Motion is CSS and SMIL only.
 // The themes card draws from a checkout of ClaudeCodeThemes, so it shows what the themes really draw.
+// The Overpowered card embeds assets/art, exported from the app. The level card has its own script, build-level.mjs.
 // Run: node scripts/build-cards.mjs [themes repo, default ../claude-code-themes] [out dir, default assets]
 import fs from 'node:fs'
 import path from 'node:path'
@@ -33,118 +34,160 @@ ${css}
 const halfX = side => (side === 'left' ? 0 : 8)
 
 // ---------------------------------------------------------------- Overpowered
-// A spark climbs the nine rank tiers, lighting each emblem, and Legend bursts. All on one 10s clock.
+// The app's real art on a lit stage. A set is logged, XP sparks out of the phone and climbs the nine painted
+// emblems, and Legend bursts. All on one 14s clock.
+const art = name => `data:image/webp;base64,${fs.readFileSync(path.join(root, 'assets/art', `${name}.webp`)).toString('base64')}`
+
 const overpowered = () => {
-  const W = 880, H = 340, STAGE = 216, T = 10
-  const TIERS = ['IRON', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM', 'DIAMOND', 'ELITE', 'CHAMPION', 'LEGEND']
-  const at = i => 5 + i * 6.5
-  const HIT = at(8)
-  const P = TIERS.map((_, i) => ({ x: 62 + i * 88, y: 152 - 88 * Math.pow(i / 8, 1.35), s: 15 + i * 2.6 }))
-  const ramp = i => mix('#4B4B52', C.red, Math.pow(i / 8, 1.1))
+  const W = 880, H = 470, T = 14, HZ = 398
+  // Key, label, glow and label colors come from the app's own palette.
+  const TIERS = [['iron', '#7FB6FF', '#C7DCF2'], ['bronze', '#FF7330', '#FFB98A'], ['silver', '#D6E8FF', '#EEF5FF'], ['gold', '#FFC400', '#FFE27A'], ['platinum', '#2EF6FF', '#9FFAFF'], ['diamond', '#6F7DFF', '#B8C3FF'], ['elite', '#22FF9C', '#8DFFCF'], ['champion', '#FF2450', '#FF8FA6'], ['legend', '#FFD23F', '#FFE58F']]
+  const SIZE = [70, 74, 82, 92, 104, 118, 132, 150, 178]
+  const pct = t => t / T * 100
+  const at = i => pct(2.4 + i * .8)
+  const HIT = at(8), HOLD = pct(13), OUT = pct(13.7)
 
-  const shield = s => `M0 ${n(-s)}L${n(.86 * s)} ${n(-.62 * s)}V${n(.1 * s)}C${n(.86 * s)} ${n(.62 * s)} ${n(.4 * s)} ${n(.9 * s)} 0 ${n(1.04 * s)}C${n(-.4 * s)} ${n(.9 * s)} ${n(-.86 * s)} ${n(.62 * s)} ${n(-.86 * s)} ${n(.1 * s)}V${n(-.62 * s)}Z`
-  const stroke = s => `fill="none" stroke="#fff" stroke-width="${n(Math.max(1.6, s * .09))}" stroke-linecap="round" stroke-linejoin="round"`
-  const chevron = (s, y) => `<path d="M${n(-.42 * s)} ${n(y)}L0 ${n(y + .26 * s)}L${n(.42 * s)} ${n(y)}" ${stroke(s)}/>`
-  const star = (s, r, y = 0) => `<path transform="translate(0 ${n(y)})" fill="#fff" d="M0 ${n(-r * s)}L${n(.12 * s)} ${n(-.12 * s)}L${n(r * s)} 0L${n(.12 * s)} ${n(.12 * s)}L0 ${n(r * s)}L${n(-.12 * s)} ${n(.12 * s)}L${n(-r * s)} 0L${n(-.12 * s)} ${n(-.12 * s)}Z"/>`
-  const gem = (s, y) => `<path transform="translate(0 ${n(y)})" fill="#fff" d="M0 ${n(-.34 * s)}L${n(.34 * s)} 0L0 ${n(.34 * s)}L${n(-.34 * s)} 0Z"/>`
-  const crown = s => `<path fill="#fff" d="M${n(-.46 * s)} ${n(.3 * s)}L${n(-.52 * s)} ${n(-.26 * s)}L${n(-.22 * s)} ${n(-.02 * s)}L0 ${n(-.42 * s)}L${n(.22 * s)} ${n(-.02 * s)}L${n(.52 * s)} ${n(-.26 * s)}L${n(.46 * s)} ${n(.3 * s)}Z"/>`
-  // Nine marks: chevrons, then stars, then gems, then the crown.
-  const mark = (i, s) => [
-    chevron(s, -.1 * s),
-    chevron(s, -.26 * s) + chevron(s, .06 * s),
-    chevron(s, -.38 * s) + chevron(s, -.08 * s) + chevron(s, .22 * s),
-    star(s, .46),
-    star(s, .4, -.14 * s) + chevron(s, .28 * s),
-    gem(s, 0),
-    gem(s, -.14 * s) + chevron(s, .28 * s),
-    star(s, .5, -.06 * s) + chevron(s, .4 * s),
-    crown(s),
-  ][i]
-  const wing = (s, dir) => `<path fill="url(#wing)" transform="scale(${dir} 1)" d="M${n(.8 * s)} ${n(-.3 * s)}C${n(1.2 * s)} ${n(-.72 * s)} ${n(1.6 * s)} ${n(-.8 * s)} ${n(2 * s)} ${n(-1.02 * s)}C${n(1.92 * s)} ${n(-.62 * s)} ${n(1.78 * s)} ${n(-.42 * s)} ${n(1.62 * s)} ${n(-.26 * s)}C${n(1.66 * s)} ${n(-.2 * s)} ${n(1.68 * s)} ${n(-.16 * s)} ${n(1.68 * s)} ${n(-.1 * s)}C${n(1.42 * s)} ${n(.02 * s)} ${n(1.1 * s)} ${n(.16 * s)} ${n(.82 * s)} ${n(.3 * s)}Z"/>`
+  // Each emblem stands on the rail; the rail rises to the right and the emblems grow with it.
+  let px = 305
+  const P = SIZE.map((s, i) => {
+    if (i) px += (SIZE[i - 1] + s) * .27
+    const y = 428 - 106 * Math.pow(i / 8, 1.25)
+    return { x: px, y, s, cy: y - s * .4 }
+  })
+  const legend = P[8]
+  const START = [230, 322]
 
-  const emblems = P.map((p, i) => {
-    const color = ramp(i)
-    return `<g transform="translate(${n(p.x)} ${n(p.y)})"><path d="${shield(p.s)}" fill="#131315" stroke="#2A2A2E" stroke-width="1.5"/>
-<text y="${n(p.s * 1.04 + 17)}" text-anchor="middle" font-size="9.5" font-weight="600" letter-spacing="1.3" fill="#3F3F46">${TIERS[i]}</text>
-<g class="lit e${i}">${i === 8 ? wing(p.s, 1) + wing(p.s, -1) : ''}<path d="${shield(p.s)}" fill="${color}" filter="url(#blur)" opacity=".55"/><path d="${shield(p.s)}" fill="url(#g${i})" stroke="${mix(color, '#ffffff', .4)}" stroke-width="1.5"/>${mark(i, p.s)}
-<text y="${n(p.s * 1.04 + 17)}" text-anchor="middle" font-size="9.5" font-weight="600" letter-spacing="1.3" fill="${mix(color, '#ffffff', .5)}">${TIERS[i]}</text></g></g>`
-  }).join('\n')
-
-  // The line and rail both advance by rung, so they stay locked to the spark.
   const lengths = P.slice(1).map((p, i) => Math.hypot(p.x - P[i].x, p.y - P[i].y))
   const total = lengths.reduce((a, b) => a + b)
   const along = i => lengths.slice(0, i).reduce((a, b) => a + b, 0) / total
   const line = P.map(p => `${n(p.x)},${n(p.y)}`).join(' ')
-  const legend = P[8]
+
+  const emblems = P.map((p, i) => {
+    return `<g transform="translate(${n(p.x)} ${n(p.cy)})"><use href="#em${i}" opacity=".15"/>
+<g class="lit e${i}"><circle r="${n(p.s * .72)}" fill="url(#h${i})"/><use href="#em${i}"/></g></g>`
+  }).join('\n')
+  const labels = P.map((p, i) => {
+    const [key, glow, label] = TIERS[i]
+    return `<circle cx="${n(p.x)}" cy="${n(p.y)}" r="2.5" fill="#2B2B30"/>
+<text x="${n(p.x)}" y="${n(p.y + 16)}" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1.3" fill="#3F3F46">${key.toUpperCase()}</text>
+<g class="lit e${i}" style="transform-origin:${n(p.x)}px ${n(p.y)}px"><circle cx="${n(p.x)}" cy="${n(p.y)}" r="3" fill="${glow}"/><text x="${n(p.x)}" y="${n(p.y + 16)}" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1.3" fill="${label}">${key.toUpperCase()}</text></g>`
+  }).join('\n')
 
   const css = [
-    kf('spark', [[0, `opacity:0;transform:translate(${n(P[0].x)}px,${n(P[0].y)}px)`], [at(0) - 1, `opacity:0;transform:translate(${n(P[0].x)}px,${n(P[0].y)}px)`],
+    kf('spark', [[0, `opacity:0;transform:translate(${START[0]}px,${START[1]}px)`], [pct(1.9), `opacity:0;transform:translate(${START[0]}px,${START[1]}px)`], [pct(2), `opacity:1;transform:translate(${START[0]}px,${START[1]}px)`],
       ...P.map((p, i) => [at(i), `opacity:1;transform:translate(${n(p.x)}px,${n(p.y)}px)`]),
       [HIT + 1, `opacity:0;transform:translate(${n(legend.x)}px,${n(legend.y)}px)`], [100, `opacity:0;transform:translate(${n(legend.x)}px,${n(legend.y)}px)`]]),
-    kf('draw', [[0, 'stroke-dashoffset:1;opacity:1'], [at(0), 'stroke-dashoffset:1;opacity:1'], ...P.map((_, i) => [at(i), `stroke-dashoffset:${n(1 - along(i))};opacity:1`]), [92, 'stroke-dashoffset:0;opacity:1'], [98, 'stroke-dashoffset:0;opacity:0'], [100, 'stroke-dashoffset:1;opacity:0']]),
-    kf('rail', [[0, 'transform:scaleX(0);opacity:1'], [at(0), 'transform:scaleX(0);opacity:1'], ...P.map((_, i) => [at(i), `transform:scaleX(${n(along(i))});opacity:1`]), [92, 'transform:scaleX(1);opacity:1'], [98, 'transform:scaleX(1);opacity:0'], [100, 'transform:scaleX(0);opacity:0']]),
-    ...P.map((_, i) => kf(`e${i}`, [[0, 'opacity:0;transform:scale(.82)'], [at(i) - .2, 'opacity:0;transform:scale(.82)'], [at(i) + 1, 'opacity:1;transform:scale(1.18)'], [at(i) + 4, 'opacity:1;transform:scale(1)'], [92, 'opacity:1;transform:scale(1)'], [98, 'opacity:0;transform:scale(1)'], [100, 'opacity:0;transform:scale(.82)']])),
+    kf('draw', [[0, 'stroke-dashoffset:1;opacity:1'], [at(0), 'stroke-dashoffset:1;opacity:1'], ...P.map((_, i) => [at(i), `stroke-dashoffset:${n(1 - along(i))};opacity:1`]), [HOLD, 'stroke-dashoffset:0;opacity:1'], [OUT, 'stroke-dashoffset:0;opacity:0'], [100, 'stroke-dashoffset:1;opacity:0']]),
+    ...P.map((_, i) => kf(`e${i}`, [[0, 'opacity:0;transform:scale(.8)'], [at(i) - .2, 'opacity:0;transform:scale(.8)'], [at(i) + 1, 'opacity:1;transform:scale(1.2)'], [at(i) + 3.5, 'opacity:1;transform:scale(1)'], [HOLD, 'opacity:1;transform:scale(1)'], [OUT, 'opacity:0;transform:scale(1)'], [100, 'opacity:0;transform:scale(.8)']])),
+    kf('xp', [[0, 'opacity:0'], [pct(2.2), 'opacity:0'], [pct(2.6), 'opacity:1'], [pct(8.2), 'opacity:1'], [pct(8.7), 'opacity:0'], [100, 'opacity:0']]),
+    kf('season', [[0, 'opacity:0'], [pct(8.2), 'opacity:0'], [pct(8.7), 'opacity:1'], [HOLD, 'opacity:1'], [OUT, 'opacity:0'], [100, 'opacity:0']]),
+    kf('gain', [[0, 'opacity:0;transform:translateY(10px)'], [pct(1.2), 'opacity:0;transform:translateY(10px)'], [pct(1.6), 'opacity:1;transform:none'], [pct(2.6), 'opacity:1;transform:translateY(-10px)'], [pct(3.1), 'opacity:0;transform:translateY(-16px)'], [100, 'opacity:0;transform:translateY(-16px)']]),
     kf('burst', [[0, 'opacity:0;transform:translate(0,0)'], [HIT, 'opacity:0;transform:translate(0,0)'], [HIT + .4, 'opacity:1;transform:translate(0,0);animation-timing-function:cubic-bezier(.1,.7,.3,1)'], [HIT + 14, 'opacity:0;transform:translate(var(--x),var(--y))'], [100, 'opacity:0;transform:translate(var(--x),var(--y))']]),
-    kf('halo', [[0, 'opacity:.12'], [HIT, 'opacity:.12'], [HIT + 1.5, 'opacity:1'], [92, 'opacity:.6'], [100, 'opacity:.12']]),
-    kf('float', [[0, 'opacity:0;transform:translateY(8px)'], [HIT, 'opacity:0;transform:translateY(8px)'], [HIT + 2, 'opacity:1;transform:none'], [HIT + 22, 'opacity:1;transform:translateY(-6px)'], [HIT + 30, 'opacity:0;transform:translateY(-10px)'], [100, 'opacity:0;transform:translateY(-10px)']]),
-    '@keyframes up{0%{opacity:0;transform:translateY(0)}15%{opacity:.85}100%{opacity:0;transform:translateY(-200px)}}',
+    kf('halo', [[0, 'opacity:.1'], [HIT, 'opacity:.1'], [HIT + 1.5, 'opacity:1'], [HOLD, 'opacity:.6'], [OUT, 'opacity:.1'], [100, 'opacity:.1']]),
+    kf('rays', [[0, 'opacity:0'], [HIT, 'opacity:0'], [HIT + 1.5, 'opacity:.9'], [HOLD, 'opacity:.45'], [OUT, 'opacity:0'], [100, 'opacity:0']]),
+    kf('rank', [[0, 'opacity:0;transform:translateY(8px)'], [HIT, 'opacity:0;transform:translateY(8px)'], [HIT + 2, 'opacity:1;transform:none'], [HOLD, 'opacity:1;transform:none'], [OUT, 'opacity:0;transform:none'], [100, 'opacity:0']]),
+    kf('sweep', [[0, 'transform:translateX(-300px)'], [HIT, 'transform:translateX(-300px)'], [HIT + 9, 'transform:translateX(1100px)'], [100, 'transform:translateX(1100px)']]),
+    kf('tglow', [[0, 'opacity:.5'], [HIT, 'opacity:.5'], [HIT + 1.5, 'opacity:1'], [HIT + 14, 'opacity:.5'], [100, 'opacity:.5']]),
+    '@keyframes up{0%{opacity:0;transform:translateY(0)}15%{opacity:.9}100%{opacity:0;transform:translateY(-260px)}}',
     '@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}',
+    '@keyframes flickA{0%,100%{opacity:1}35%{opacity:.62}70%{opacity:.88}}',
+    '@keyframes flickB{0%,100%{opacity:.25}35%{opacity:.95}70%{opacity:.5}}',
+    '@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}',
+    '@keyframes spin{to{transform:rotate(360deg)}}',
     `.spark{opacity:0;animation:spark ${T}s linear infinite}`,
     `.draw{animation:draw ${T}s linear infinite}`,
-    `.rail{transform-box:fill-box;transform-origin:left;animation:rail ${T}s linear infinite}`,
     ...P.map((_, i) => `.e${i}{animation:e${i} ${T}s ease-out infinite}`),
+    `.xp{opacity:0;animation:xp ${T}s linear infinite}.season{opacity:0;animation:season ${T}s linear infinite}`,
+    `.gain{opacity:0;animation:gain ${T}s ease-out infinite}`,
     `.bp{opacity:0;animation:burst ${T}s linear infinite}`,
-    `.halo{animation:halo ${T}s ease-out infinite}`,
-    `.float{opacity:0;animation:float ${T}s ease-out infinite}`,
+    `.halo{animation:halo ${T}s ease-out infinite}.rays{opacity:0;animation:rays ${T}s ease-out infinite}`,
+    `.rank{animation:rank ${T}s ease-out infinite}`,
+    `.sw{transform:translateX(-300px);animation:sweep ${T}s linear infinite}`,
+    `.tglow{animation:tglow ${T}s ease-out infinite}`,
     '.emb{opacity:0;animation:up linear infinite}',
     '.dot{animation:pulse 2.4s ease-in-out infinite}',
+    '.fa{animation:flickA 1.7s ease-in-out infinite}.fb{opacity:.3;animation:flickB 1.7s ease-in-out infinite}',
+    '.bob{animation:bob 6s ease-in-out infinite}',
+    '.spin{animation:spin 60s linear infinite}',
   ].join('\n')
 
-  const sparks = Array.from({ length: 18 }, (_, i) => {
-    const angle = (i / 18) * Math.PI * 2 + rnd(-.15, .15), reach = rnd(36, 92)
-    return `<circle class="bp" style="--x:${n(Math.cos(angle) * reach)}px;--y:${n(Math.sin(angle) * reach)}px" r="${n(rnd(1, 2.4))}" fill="${i % 3 ? C.ember : C.gold}"/>`
+  const sparks = Array.from({ length: 26 }, (_, i) => {
+    const angle = (i / 26) * Math.PI * 2 + rnd(-.15, .15), reach = rnd(70, 150)
+    return `<circle class="bp" style="--x:${n(Math.cos(angle) * reach)}px;--y:${n(Math.sin(angle) * reach)}px" r="${n(rnd(1.2, 3))}" fill="${i % 3 ? C.gold : '#fff'}"/>`
   }).join('')
-  const embers = Array.from({ length: 20 }, () => {
+  const embers = Array.from({ length: 28 }, () => {
     const dur = rnd(5, 11)
-    return `<circle class="emb" style="animation-duration:${n(dur)}s;animation-delay:-${n(rnd(0, dur))}s" cx="${n(rnd(200, 870))}" cy="${STAGE - 4}" r="${n(rnd(.7, 1.7))}" fill="${[C.red, C.ember, C.gold][Math.floor(rnd(0, 3))]}"/>`
+    return `<circle class="emb" style="animation-duration:${n(dur)}s;animation-delay:-${n(rnd(0, dur))}s" cx="${n(rnd(10, 870))}" cy="${H - 6}" r="${n(rnd(.7, 1.9))}" fill="${[C.red, C.ember, C.gold][Math.floor(rnd(0, 3))]}"/>`
   }).join('')
+  const rays = Array.from({ length: 16 }, (_, i) => {
+    const a = i * 22.5 + rnd(-6, 6), wide = rnd(2.5, 6)
+    return `<path transform="rotate(${n(a)})" fill="url(#ray)" d="M0 0L${n(-wide * 3.4)} -300H${n(wide * 3.4)}Z"/>`
+  }).join('')
+  const floor = [
+    ...Array.from({ length: 21 }, (_, i) => { const k = i - 10; return `M${440 + k * 34} ${HZ}L${440 + k * 170} ${H + 4}` }),
+    ...[6, 15, 28, 46].map(d => `M0 ${HZ + d}H${W}`),
+  ].join('')
 
-  return `${open(W, H, 'Now building Overpowered: an iPhone workout tracker that plays like an RPG. Log fast, level up, rank honestly. In development.', css)}
+  const TITLE = 'OVERPOWERED'
+  const titleAt = 'translate(36 126) skewX(-10)'
+  const title = extra => `<text transform="${titleAt}" font-size="106" font-weight="900" textLength="792" lengthAdjust="spacingAndGlyphs" ${extra}>${TITLE}</text>`
+
+  return `${open(W, H, 'Now building Overpowered: an iPhone workout tracker that plays like an RPG. Log a set, earn XP, and climb nine rank tiers from Iron to Legend. In development.', css)}
 <defs>
 <clipPath id="c"><rect width="${W}" height="${H}" rx="16"/></clipPath>
-<pattern id="d" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#242427"/></pattern>
-<linearGradient id="fade" x1="0" x2="1"><stop offset=".2" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/></linearGradient>
-<mask id="dm"><rect width="${W}" height="${STAGE}" fill="url(#fade)"/></mask>
-<radialGradient id="glow"><stop offset="0" stop-color="${C.red}" stop-opacity=".42"/><stop offset="1" stop-color="${C.red}" stop-opacity="0"/></radialGradient>
-<linearGradient id="heat" gradientUnits="userSpaceOnUse" x1="${P[0].x}" x2="${legend.x}" y1="0" y2="0"><stop offset="0" stop-color="#7F1D1D"/><stop offset=".6" stop-color="${C.red}"/><stop offset="1" stop-color="${C.ember}"/></linearGradient>
-<linearGradient id="railfill"><stop offset="0" stop-color="#7F1D1D"/><stop offset=".55" stop-color="${C.red}"/><stop offset=".85" stop-color="${C.ember}"/><stop offset="1" stop-color="${C.gold}"/></linearGradient>
-<linearGradient id="wing" x1="0" x2="1"><stop offset="0" stop-color="${C.red}"/><stop offset="1" stop-color="#7F1D1D" stop-opacity=".55"/></linearGradient>
-<filter id="blur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7"/></filter>
+<clipPath id="ph"><rect x="70" y="226" width="160" height="337" rx="34"/></clipPath>
+<clipPath id="tc">${title('')}</clipPath>
+<radialGradient id="glow"><stop offset="0" stop-color="${C.gold}" stop-opacity=".5"/><stop offset=".45" stop-color="${C.ember}" stop-opacity=".22"/><stop offset="1" stop-color="${C.red}" stop-opacity="0"/></radialGradient>
+<radialGradient id="left"><stop offset="0" stop-color="${C.red}" stop-opacity=".5"/><stop offset="1" stop-color="${C.red}" stop-opacity="0"/></radialGradient>
+<radialGradient id="top" cx=".5" cy="0" r=".8"><stop offset="0" stop-color="#3B0A0A" stop-opacity=".85"/><stop offset="1" stop-color="#3B0A0A" stop-opacity="0"/></radialGradient>
+<radialGradient id="ray" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="300"><stop offset="0" stop-color="#FFE9A0" stop-opacity=".55"/><stop offset="1" stop-color="#FFD23F" stop-opacity="0"/></radialGradient>
+<linearGradient id="fl" x2="0" y2="1"><stop offset="0" stop-color="${C.red}" stop-opacity=".2"/><stop offset="1" stop-color="${C.red}" stop-opacity="0"/></linearGradient>
+<linearGradient id="hz"><stop offset="0" stop-color="${C.red}" stop-opacity="0"/><stop offset=".5" stop-color="${C.red}" stop-opacity=".85"/><stop offset="1" stop-color="${C.red}" stop-opacity="0"/></linearGradient>
+<linearGradient id="tf" gradientUnits="userSpaceOnUse" x1="0" y1="-78" x2="0" y2="2"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".55" stop-color="#FFE3DC"/><stop offset="1" stop-color="#F8695C"/></linearGradient>
+<linearGradient id="sw"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<linearGradient id="rail" gradientUnits="userSpaceOnUse" x1="${n(P[0].x)}" x2="${n(legend.x)}" y1="0" y2="0">${P.map((p, i) => `<stop offset="${n((p.x - P[0].x) / (legend.x - P[0].x))}" stop-color="${TIERS[i][1]}"/>`).join('')}</linearGradient>
+<filter id="tb" x="-10%" y="-60%" width="120%" height="220%"><feGaussianBlur stdDeviation="16"/></filter>
 <filter id="sb" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="5"/></filter>
-${P.map((_, i) => `<linearGradient id="g${i}" x2="0" y2="1"><stop offset="0" stop-color="${mix(ramp(i), '#ffffff', .2)}"/><stop offset="1" stop-color="${mix(ramp(i), '#000000', .4)}"/></linearGradient>`).join('')}
+${P.map((p, i) => `<image id="em${i}" x="${n(-p.s / 2)}" y="${n(-p.s / 2)}" width="${p.s}" height="${p.s}" href="${art(`emblem-${TIERS[i][0]}`)}"/><radialGradient id="h${i}"><stop offset="0" stop-color="${TIERS[i][1]}" stop-opacity=".5"/><stop offset="1" stop-color="${TIERS[i][1]}" stop-opacity="0"/></radialGradient>`).join('\n')}
+<image id="back" x="-185" y="-185" width="370" height="370" href="${art('inferno-back')}"/>
 </defs>
 <g clip-path="url(#c)">
-<rect width="${W}" height="${H}" fill="${C.card}"/>
-<rect width="${W}" height="${STAGE}" fill="${C.stage}"/>
-<rect width="${W}" height="${STAGE}" fill="url(#d)" mask="url(#dm)"/>
-<circle class="halo" cx="${n(legend.x)}" cy="${n(legend.y)}" r="210" fill="url(#glow)"/>
+<rect width="${W}" height="${H}" fill="#07080B"/>
+<rect width="${W}" height="220" fill="url(#top)"/>
+<circle cx="150" cy="345" r="290" fill="url(#left)"/>
+<rect y="${HZ}" width="${W}" height="${H - HZ}" fill="url(#fl)"/>
+<path d="${floor}" fill="none" stroke="${C.red}" stroke-opacity=".14"/>
+<rect y="${HZ - .75}" width="${W}" height="1.5" fill="url(#hz)"/>
+<circle class="halo" cx="${n(legend.x)}" cy="${n(legend.cy)}" r="300" fill="url(#glow)"/>
+<g class="rays" transform="translate(${n(legend.x)} ${n(legend.cy)})"><g class="spin">${rays}</g></g>
+<g transform="translate(150 353)"><use class="fa" href="#back"/><use class="fb" href="#back" transform="scale(-1 1)"/></g>
+<image x="-35" y="168" width="370" height="370" href="${art('inferno-front')}"/>
 ${embers}
 <polyline points="${line}" fill="none" stroke="#232327" stroke-width="2" stroke-linejoin="round"/>
-<polyline class="draw" points="${line}" pathLength="1" stroke-dasharray="1 1" fill="none" stroke="url(#heat)" stroke-width="2.5" stroke-linejoin="round"/>
+<polyline class="draw" points="${line}" pathLength="1" stroke-dasharray="1 1" fill="none" stroke="url(#rail)" stroke-width="2.5" stroke-linejoin="round"/>
 ${emblems}
-<g class="spark"><circle r="9" fill="${C.ember}" filter="url(#sb)"/><circle r="3.4" fill="#FFF3B0"/></g>
-<g transform="translate(${n(legend.x)} ${n(legend.y)})">${sparks}</g>
-<g class="float" font-weight="800"><text x="${n(legend.x)}" y="${n(legend.y + 92)}" text-anchor="middle" font-size="22" letter-spacing="-.4" fill="${C.gold}">+210 XP</text><text x="${n(legend.x)}" y="${n(legend.y + 110)}" text-anchor="middle" font-size="10" letter-spacing="2" fill="${C.soft}">RANK UP</text></g>
-<rect y="${STAGE}" width="${W}" height="3" fill="#18181B"/>
-<rect class="rail" y="${STAGE}" width="${W}" height="3" fill="url(#railfill)"/>
+${labels}
+<g transform="translate(${n(legend.x)} ${n(legend.cy)})">${sparks}</g>
+<g class="bob"><g clip-path="url(#ph)">
+<rect x="70" y="226" width="160" height="337" fill="#0A0F1E"/>
+<image x="70" y="226" width="160" height="337" href="${art('screen-log')}"/>
+<image class="xp" x="70" y="226" width="160" height="305" href="${art('screen-xp')}"/>
+<image class="season" x="70" y="226" width="160" height="337" href="${art('screen-season')}"/>
+</g><rect x="70.5" y="226.5" width="159" height="336" rx="34" fill="none" stroke="#5A5F6B" stroke-opacity=".7"/></g>
+<g class="gain" font-weight="800"><text x="238" y="300" font-size="27" letter-spacing="-.6" fill="${C.gold}" stroke="#1A0606" stroke-width="3.5" stroke-linejoin="round" style="paint-order:stroke fill">+192 XP</text></g>
+<g class="spark"><circle r="10" fill="${C.ember}" filter="url(#sb)"/><circle r="3.6" fill="#FFF3B0"/></g>
+<g class="rank"><text x="${n(legend.x)}" y="${n(legend.y + 38)}" text-anchor="middle" font-size="19" font-weight="800" letter-spacing="1.6" fill="${C.gold}">RANK UP</text></g>
+${title('fill="#EF4444" filter="url(#tb)" class="tglow"')}
+${title('fill="url(#tf)"')}
+<g clip-path="url(#tc)"><rect class="sw" y="30" width="170" height="110" fill="url(#sw)"/></g>
+<image x="36" y="17" width="29" height="16.5" href="${art('op-mark')}"/>
+<text x="74" y="30" class="lbl" fill="${C.red}">NOW BUILDING</text>
+<rect x="705.5" y="13.5" width="139" height="23" rx="11.5" fill="#07080B" fill-opacity=".6" stroke="#5B1D1D"/><circle class="dot" cx="721" cy="25" r="3.5" fill="${C.red}"/><text x="732" y="29" class="tag" fill="${C.soft}">IN DEVELOPMENT</text>
+<text x="40" y="162" font-size="22" font-weight="700" letter-spacing="-.5" fill="${C.text}">Log fast. Level up. Rank honestly.</text>
+<text x="848" y="436" text-anchor="end" font-size="14.5" fill="${C.muted}">An iPhone workout tracker that plays like an RPG.</text>
+<text x="848" y="456" text-anchor="end" class="tag" fill="${C.soft}">27 RANKS · BOSSES · SEASON PASS · LOOT</text>
 </g>
 <rect x=".5" y=".5" width="${W - 1}" height="${H - 1}" rx="15.5" fill="none" stroke="${C.line}"/>
-<text x="40" y="256" class="lbl" fill="${C.red}">NOW BUILDING</text>
-<rect x="172.5" y="240.5" width="139" height="23" rx="11.5" fill="none" stroke="#5B1D1D"/><circle class="dot" cx="188" cy="252" r="3.5" fill="${C.red}"/><text x="199" y="256" class="tag" fill="${C.soft}">IN DEVELOPMENT</text>
-<text x="37" y="312" font-size="54" font-weight="800" letter-spacing="-2.2" fill="${C.text}">Overpowered</text>
-<text x="470" y="258" font-size="23" font-weight="700" letter-spacing="-.5" fill="${C.text}">Log fast. Level up. Rank honestly.</text>
-<text x="470" y="284" font-size="15.5" fill="${C.muted}">An iPhone workout tracker that plays like an RPG.</text>
-<text x="470" y="314" class="tag" fill="${C.soft}">27 RANKS · BOSSES · SEASON PASS · LOOT</text>
 </svg>`
 }
 

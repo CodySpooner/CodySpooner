@@ -7,11 +7,19 @@ on:
 
 permissions:
   contents: write
+  pull-requests: read
 
 jobs:
   snake:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      # Runs before the snake, which writes dist/ as root. If it fails nothing is published, so yesterday's cards stay up.
+      - run: node scripts/build-level.mjs dist/level.svg
+        env:
+          GH_TOKEN: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }}
+
       - uses: Platane/snk@v3
         with:
           github_user_name: ${{ github.repository_owner }}
