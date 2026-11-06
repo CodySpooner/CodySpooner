@@ -1,6 +1,6 @@
 <img src="assets/banner.svg" width="100%" alt="Xody (Cody Spooner), vibe coder. Building cool things on the internet.">
 
-<img src="assets/now-overpowered.svg" width="100%" alt="Now building Overpowered: an iPhone workout tracker that plays like an RPG. A phone stands in a ring of fire as a set is logged, and a spark of XP climbs nine painted rank emblems from Iron to Legend. Log fast, level up, rank honestly. In development.">
+<a href="https://codyspooner.github.io/overpowered-app/"><img src="assets/now-overpowered.svg" width="100%" alt="Now building Overpowered: an iPhone workout tracker that plays like an RPG. A phone stands in a ring of fire as a set is logged, and a spark of XP climbs nine painted rank emblems from Iron to Legend. Log fast, level up, rank honestly. In development."></a>
 
 <p><a href="https://github.com/CodySpooner/ClaudeCodeThemes"><img src="assets/claude-code-themes.svg" width="49.9%" alt="Claude Code Themes: six animated themes for Claude Code, plus a themed HUD for the desktop app. A little terminal cycles through Sakura, Voltage, Royal, Crunch, Xody and Hacker."></a><a href="https://github.com/CodySpooner/Claude-Color-Coded"><img src="assets/claude-color-coded.svg" width="49.9%" alt="Claude Color Coded: color-code the sidebar of the Claude desktop app. A cursor right-clicks a group and picks green, the other groups light up, and the colors stay on their rows as the list scrolls. Windows, C#, MIT, unofficial."></a></p>
 
