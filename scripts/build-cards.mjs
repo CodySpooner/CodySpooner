@@ -1,7 +1,8 @@
 // Builds the cards in assets/, all but banner.svg, which this only reads for its embedded Inter (OFL).
 // GitHub shows README SVGs as <img>: no scripts, no web fonts, no hover. Motion is CSS and SMIL only.
 // The themes card draws from a checkout of ClaudeCodeThemes, so it shows what the themes really draw.
-// The Overpowered card embeds assets/art, exported from the app. The level card has its own script, build-level.mjs.
+// The Overpowered card embeds assets/art, exported from the app, and the Claude Card card embeds that project's sample cards.
+// The level card has its own script, build-level.mjs.
 // Run: node scripts/build-cards.mjs [themes repo, default ../claude-code-themes] [out dir, default assets]
 import fs from 'node:fs'
 import path from 'node:path'
@@ -356,6 +357,78 @@ ${rows}
 </svg>`
 }
 
+// ---------------------------------------------------------------- Claude Card
+// The five real designs, front and back. One at a time each rises, flips over, catches the light and flips home.
+// Same parts at the same heights as the half cards, across the full width, since three halves can't fill a row.
+const claudeCard = () => {
+  const W = 880, H = 470, STAGE = 300, EACH = 3, GAP = 12, TILT = 7
+  const DESIGNS = [['horizon', 144, '#FF5FC4'], ['obsidian', 162, '#B79BFF'], ['prism', 184, '#5CE1FF'], ['phosphor', 162, '#F97316'], ['volt', 144, '#D9FF2A']]
+  const T = EACH * DESIGNS.length
+  const pct = s => s / T * 100
+  const delay = i => `animation-delay:${i * EACH}s`
+
+  let cx = (W - DESIGNS.reduce((sum, d) => sum + d[1], 0) - GAP * (DESIGNS.length - 1)) / 2
+  const cards = DESIGNS.map(([key, w, accent], i) => {
+    const h = w * 786 / 560, x = cx, y = STAGE / 2 - h / 2, mid = `${n(x + w / 2)}px ${STAGE / 2}px`
+    cx += w + GAP
+    const picture = (side, extra = '') => `<image ${extra} x="${x}" y="${n(y)}" width="${w}" height="${n(h)}" href="${art(`card-${key}-${side}`)}"/>`
+    return {
+      defs: `<radialGradient id="g-${key}"><stop offset="0" stop-color="${accent}" stop-opacity=".6"/><stop offset="1" stop-color="${accent}" stop-opacity="0"/></radialGradient><clipPath id="k-${key}"><rect x="${x}" y="${n(y)}" width="${w}" height="${n(h)}" rx="${n(w * .064)}"/></clipPath>`,
+      halo: `<circle class="halo" style="${delay(i)}" cx="${n(x + w / 2)}" cy="${STAGE / 2}" r="${n(w * .95)}" fill="url(#g-${key})"/>`,
+      card: `<g class="lift" style="${delay(i)}"><g class="flip" style="${delay(i)};transform-origin:${mid}">
+${picture('front')}
+${picture('back', `class="back" style="${delay(i)}"`)}
+<g clip-path="url(#k-${key})"><rect class="sheen" style="${delay(i)};--x:${w + 120}px" x="${x - 120}" y="${n(y)}" width="120" height="${n(h)}" fill="url(#sheen)"/></g>
+</g></g>`,
+    }
+  })
+
+  let px = 24
+  const pager = DESIGNS.map(([key, , accent], i) => {
+    const name = key.toUpperCase(), width = n(name.length * 8.3), x = px
+    px += width + 13
+    return `<text x="${n(x)}" y="451" font-size="10.5" font-weight="600" textLength="${width}" fill="${C.dim}">${name}</text><text class="lit" style="${delay(i)}" x="${n(x)}" y="451" font-size="10.5" font-weight="600" textLength="${width}" fill="${mix(accent, '#ffffff', .25)}">${name}</text>`
+  }).join('')
+
+  const css = [
+    kf('flip', [[0, 'transform:none'], [pct(.15), 'transform:none'], [pct(.42), `transform:scaleX(.02) skewY(${TILT}deg)`], [pct(.69), 'transform:none'], [pct(2.2), 'transform:none'], [pct(2.47), `transform:scaleX(.02) skewY(-${TILT}deg)`], [pct(2.74), 'transform:none'], [100, 'transform:none']]),
+    kf('back', [[0, 'opacity:0'], [pct(.42) - .01, 'opacity:0'], [pct(.42), 'opacity:1'], [pct(2.47) - .01, 'opacity:1'], [pct(2.47), 'opacity:0'], [100, 'opacity:0']]),
+    kf('lift', [[0, 'transform:none'], [pct(.3), 'transform:translateY(-6px)'], [pct(2.7), 'transform:translateY(-6px)'], [pct(3), 'transform:none'], [100, 'transform:none']]),
+    kf('halo', [[0, 'opacity:.2'], [pct(.3), 'opacity:1'], [pct(2.7), 'opacity:1'], [pct(3.2), 'opacity:.2'], [100, 'opacity:.2']]),
+    kf('sheen', [[0, 'opacity:0;transform:none'], [pct(.75), 'opacity:0;transform:none'], [pct(.8), 'opacity:1;transform:none'], [pct(1.75), 'opacity:1;transform:translateX(var(--x))'], [pct(1.8), 'opacity:0;transform:translateX(var(--x))'], [100, 'opacity:0;transform:translateX(var(--x))']]),
+    kf('lit', [[0, 'opacity:0'], [pct(.15), 'opacity:1'], [pct(2.85), 'opacity:1'], [pct(3), 'opacity:0'], [100, 'opacity:0']]),
+    // Rainbow order, because cyan fading straight to orange goes through gray.
+    `@keyframes hue{${['#FF5FC4', '#B79BFF', '#5CE1FF', '#D9FF2A', '#F97316'].map((c, i) => `${i * 20}%{fill:${c}}`).join('')}100%{fill:#FF5FC4}}`,
+    '@keyframes blink{0%,49%{fill-opacity:1}50%,100%{fill-opacity:0}}.cur{animation:blink 1.1s step-end infinite}',
+    `.flip{animation:flip ${T}s ease-in-out infinite}.back{opacity:0;animation:back ${T}s linear infinite}`,
+    `.lift{animation:lift ${T}s ease-out infinite}.halo{opacity:.2;animation:halo ${T}s ease-out infinite}`,
+    `.sheen{opacity:0;animation:sheen ${T}s linear infinite}.lit{opacity:0;animation:lit ${T}s linear infinite}`,
+    `.hue{fill:${DESIGNS[1][2]};animation:hue 16s linear infinite}`,
+  ].join('\n')
+
+  return `${open(W, H, 'Claude Card: type /card in Claude Code and your stats become a holographic 3D trading card. Five designs flip over one by one: Horizon, Obsidian, Prism, Phosphor and Volt.', css)}
+<defs><clipPath id="c"><rect width="${W}" height="${H}" rx="16"/></clipPath>
+<linearGradient id="sheen" x1="0" y1="0" x2="1" y2=".22"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".35" stop-color="#5CE1FF" stop-opacity=".26"/><stop offset=".55" stop-color="#fff" stop-opacity=".5"/><stop offset=".75" stop-color="#FF5FC4" stop-opacity=".26"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+${cards.map(c => c.defs).join('')}</defs>
+<g clip-path="url(#c)">
+<rect width="${W}" height="${H}" fill="${C.card}"/>
+<rect width="${W}" height="${STAGE}" fill="${C.stage}"/>
+${cards.map(c => c.halo).join('')}
+${cards.map(c => c.card).join('\n')}
+<path d="M0 ${STAGE + .5}h${W}" stroke="${C.line}"/>
+</g>
+<rect x=".5" y=".5" width="${W - 1}" height="${H - 1}" rx="15.5" fill="none" stroke="${C.line}"/>
+<text x="24" y="332" class="lbl" fill="${C.red}">OPEN SOURCE</text>
+<text x="${W - 24}" y="332" class="tag" fill="${C.muted}" text-anchor="end">VIEW REPO →</text>
+<text x="22" y="374" font-size="33" font-weight="800" letter-spacing="-1.2" fill="${C.text}">Claude <tspan class="hue">Card</tspan></text>
+<text font-size="15" fill="${C.muted}"><tspan x="24" y="401">Type <tspan class="m" fill="${C.text}">/card</tspan> in Claude Code and your stats become a holographic 3D trading card.</tspan><tspan x="24" y="422">Spin it, flip it, download it and post it.</tspan></text>
+<rect x="${W - 196.5}" y="352.5" width="172" height="56" rx="10" fill="#0B0B0D" stroke="#2A2A30"/>
+<text x="${W - 176}" y="387" class="m" font-size="20" fill="${C.text}"><tspan fill="${C.muted}">&gt;</tspan> /card<tspan class="cur" fill="${C.red}"> ▌</tspan></text>
+${pager}
+<text x="${W - 24}" y="451" text-anchor="end" font-size="10.5" font-weight="600" letter-spacing="1.3" fill="${C.soft}">5 DESIGNS · NO DEPENDENCIES · MIT · UNOFFICIAL</text>
+</svg>`
+}
+
 // ---------------------------------------------------------------- Stack
 // A slow ticker. textLength pins each word's width, so one set is an exact, seamless loop.
 const stack = () => {
@@ -404,6 +477,7 @@ const cards = {
   'now-overpowered.svg': overpowered(),
   'claude-code-themes.svg': themesCard(LOOKS),
   'claude-color-coded.svg': colorCoded(),
+  'claude-card.svg': claudeCard(),
   'stack.svg': stack(),
   'chip-x.svg': contact('left', 'X', '@imxody', X_LOGO, true),
   'chip-discord.svg': contact('right', 'DISCORD', '@xodyz', DISCORD_LOGO, false),
