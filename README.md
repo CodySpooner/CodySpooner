@@ -1,4 +1,4 @@
-<img src="assets/banner.svg" width="100%" alt="Xody (Cody Spooner), vibe coder. Building cool things on the internet.">
+<a href="https://codyspooner.github.io/"><img src="assets/banner.svg" width="100%" alt="Xody (Cody Spooner), vibe coder. Building cool things on the internet."></a>
 
 <a href="https://codyspooner.github.io/overpowered-app/"><img src="assets/now-overpowered.svg" width="100%" alt="Now building Overpowered: an iPhone workout tracker that plays like an RPG. A phone stands in a ring of fire as a set is logged, and a spark of XP climbs nine painted rank emblems from Iron to Legend. Log fast, level up, rank honestly. In development."></a>
 
